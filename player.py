@@ -5,12 +5,13 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, pos, constraint, speed):
         super().__init__()
         image = pygame.image.load("./images/cacucu_img.png")
-        image_length = 170
-        image_width = 95
-        image = pygame.transform.scale(image, (image_length, image_width))
+        image_width = 55
+        image_length = 70
+        image = pygame.transform.scale(image, (image_width, image_length))
 
         self.image = image.convert_alpha()
         self.rect = self.image.get_rect(midbottom = pos)
+        
         self.speed = speed
         self.constraint = constraint
         self.image_width = image_width
