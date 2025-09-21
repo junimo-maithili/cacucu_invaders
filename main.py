@@ -19,8 +19,18 @@ class Game:
 
         # Health and score setup
         self.lives = 3
-        self.lives_surface = pygame.image.load("./images/cacucu_img.png").convert_alpha()
-        self.lives_x_start_pos = screen_width - self.lives_surface.get_size()[0] * 2 + 20
+        image = pygame.image.load("./assets/cacucu_img.png")
+        image = pygame.transform.scale(image, (25, 30))
+        self.lives_surface = image.convert_alpha()
+        self.image = image.convert_alpha()
+        self.FAIL_SCREEN = False
+        self.score = 0
+        self.font = pygame.font.Font(None, 20)
+
+        # Sounds
+        self.cacucu_hit_sound = pygame.mixer.Sound("./assets/cacucu_hit.mp3")
+        self.ajaw_hit_sound = pygame.mixer.Sound("./assets/ajaw_hit.mp3")
+        self.ajaw_hit_sound.set_volume(0.4)
 
 
     # Creates alien sprites positioned in an array
@@ -64,10 +74,55 @@ class Game:
 
     def display_lives(self):
         for life in range(self.lives - 1):
-            x = self.lives_x_start_pos + life * self.lives_surface.get_size[0] + 20
+            x = 530 + life * self.lives_surface.get_size()[0]
             screen.blit(self.lives_surface, (x, 8))
+    
+    def display_score(self):
+        score_surface = self.font.render(f"Score: {self.score}", False, (255, 255, 255))
+        score_rect = score_surface.get_rect(topleft = (5, 5))
+        screen.blit(score_surface, score_rect)
 
+    def check_collision(self):
+        # Player laser collision with aliens
+        if self.player.sprite.lasers:
+            for laser in self.player.sprite.lasers:
+                if pygame.sprite.spritecollide(laser, self.aliens, True):
+                    self.score += 100
+                    self.ajaw_hit_sound.play()
+                    laser.kill()
+        
+        # Alien laser collision with player
+        if self.alien_lasers:
+            for laser in self.alien_lasers:
+                if pygame.sprite.spritecollide(laser, self.player, False):
+                    laser.kill()
+                    self.lives -= 1
+                    self.cacucu_hit_sound.play()
+        
+        # Alien collision with player
+        if self.aliens:
+            for alien in self.aliens:
+                if pygame.sprite.spritecollide(alien, self.player, False):
+                    self.lives = 0
 
+    def show_win_or_loss(self):
+        # If no more aliens, display message
+        if not self.aliens.sprites():
+            message = "No way bro! You won!"
+        elif self.lives <= 0:
+            message = "You lost? The heck are you on about?"
+        else:
+            return
+        
+        message_surface = self.font.render(message, False, (255, 255, 255))
+        message_rect = message_surface.get_rect(center = (screen_width/2, 100))
+        screen.blit(message_surface, message_rect)
+        pygame.display.flip()
+        pygame.time.wait(2000)
+        pygame.quit()
+        sys.exit()
+                 
+    
     # Main run method for the program
     def run(self):
         # Get new player and alien status
@@ -83,32 +138,10 @@ class Game:
         self.alien_lasers.draw(screen)
 
         self.check_collision()
-
-
-    def check_collision(self):
-        # Player laser collision with aliens
-        if self.player.sprite.lasers:
-            for laser in self.player.sprite.lasers:
-                if pygame.sprite.spritecollide(laser, self.aliens, True):
-                    laser.kill()
-        
-        # Alien laser collision with player
-        if self.alien_lasers:
-            for laser in self.alien_lasers:
-                if pygame.sprite.spritecollide(laser, self.player, False):
-                    laser.kill()
-                    print("AHHH!!!!")
-        
-        # Alien collision with player
-        if self.aliens:
-            for alien in self.aliens:
-                if pygame.sprite.spritecollide(alien, self.player, False):
-                    print("You lost :((((")
-                    
-
-            
-
-
+        self.display_lives()
+        self.display_score()
+        self.show_win_or_loss()
+                 
 if __name__ == "__main__":
     pygame.init()
     screen_height = 600
@@ -136,8 +169,3 @@ if __name__ == "__main__":
 
         pygame.display.flip()
         clock.tick(60)
-
-
-
-# maybe make extra points alien later
-# make ifa as the shield

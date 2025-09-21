@@ -4,7 +4,7 @@ from laser import Laser
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, constraint, speed):
         super().__init__()
-        image = pygame.image.load("./images/cacucu_img.png")
+        image = pygame.image.load("./assets/cacucu_img.png")
         image_width = 55
         image_length = 70
         image = pygame.transform.scale(image, (image_width, image_length))
@@ -20,6 +20,8 @@ class Player(pygame.sprite.Sprite):
         self.laser_cooldown = 600
         self.init_time = 0
         self.lasers = pygame.sprite.Group()
+
+        self.cacucu_attack_sound = pygame.mixer.Sound("./assets/cacucu_attack.mp3")
 
 
     def get_input(self):
@@ -47,7 +49,7 @@ class Player(pygame.sprite.Sprite):
     
     def shoot_laser(self):
         self.lasers.add(Laser(self.rect.center, self.rect.bottom,  8))
-        print("no way bro! (shoot laser)")
+        self.cacucu_attack_sound.play()
 
     def update(self):
         self.get_input()
