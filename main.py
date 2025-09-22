@@ -99,6 +99,19 @@ class Game:
                     self.lives -= 1
                     self.cacucu_hit_sound.play()
         
+        # Player laser collision with alien laser
+        if self.player.sprite.lasers:
+            for laser in self.player.sprite.lasers:
+                for aLaser in self.alien_lasers:
+                    if pygame.sprite.spritecollide(laser, self.alien_lasers, True):
+                        laser.kill()
+                        print("HAHFEOSI")
+
+        if self.alien_lasers and self.player.sprite.lasers:
+            for laser in self.alien_lasers:
+                    if pygame.sprite.spritecollide(laser, self.player.sprite.lasers, True):
+                        laser.kill()
+            
         # Alien collision with player
         if self.aliens:
             for alien in self.aliens:
